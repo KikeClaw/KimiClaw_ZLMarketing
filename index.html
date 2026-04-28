@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZeroLimitAI — Marketing Command Center</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --card: #12121a;
+    --accent: #ff6b35;
+    --accent2: #00d4aa;
+    --text: #e8e8f0;
+    --muted: #6b6b8a;
+    --border: #1e1e2e;
+    --success: #00d4aa;
+    --warning: #ffb800;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  header h1 span { color: var(--accent); }
+  .badge {
+    background: var(--accent);
+    color: #000;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--accent); }
+  .card h3 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .metric {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent2);
+  }
+  .metric-label {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .progress-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    margin-top: 12px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+  .today-task {
+    background: linear-gradient(135deg, rgba(255,107,53,0.15), rgba(0,212,170,0.1));
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .today-task::before {
+    content: "TODAY'S MISSION";
+    position: absolute;
+    top: -10px;
+    left: 20px;
+    background: var(--accent);
+    color: #000;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 12px;
+    text-transform: uppercase;
+  }
+  .today-task h2 {
+    font-size: 1.3rem;
+    margin-bottom: 12px;
+    margin-top: 8px;
+  }
+  .tweet-box {
+    background: rgba(0,0,0,0.3);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    margin: 12px 0;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .tweet-box:hover {
+    border-color: var(--accent);
+    background: rgba(255,107,53,0.05);
+  }
+  .tweet-box.copied::after {
+    content: "✅ COPIED!";
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    background: var(--success);
+    color: #000;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: sans-serif;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: transform 0.2s;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-secondary {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  .actions { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+  .calendar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .day-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 0.8rem;
+  }
+  .day-card.active {
+    border-color: var(--accent);
+    background: rgba(255,107,53,0.08);
+  }
+  .day-card .date { color: var(--muted); font-size: 0.7rem; }
+  .day-card .task { color: var(--text); margin-top: 4px; font-weight: 500; }
+  .day-card .channel { color: var(--accent2); font-size: 0.7rem; margin-top: 4px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    color: var(--muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .status {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+  .status.done { background: var(--success); }
+  .status.pending { background: var(--warning); }
+  .status.todo { background: var(--muted); }
+  .editable {
+    background: transparent;
+    border: 1px dashed var(--border);
+    color: var(--text);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: inherit;
+    width: 100%;
+  }
+  .editable:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tab {
+    padding: 10px 20px;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  .tab:hover { color: var(--text); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 768px) {
+    .two-col { grid-template-columns: 1fr; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>🚀 <span>ZeroLimitAI</span> Marketing Command Center</h1>
+  <span class="badge">Campaign: Ditch the Monthly</span>
+</header>
+
+<!-- DASHBOARD METRICS -->
+<div class="grid">
+  <div class="card">
+    <h3>📊 Signups Goal</h3>
+    <div class="metric" id="signup-metric">0 / 500</div>
+    <div class="metric-label">Target: 500 in 4 weeks</div>
+    <div class="progress-bar"><div class="progress-fill" id="signup-bar" style="width:0%"></div></div>
+  </div>
+  <div class="card">
+    <h3>💰 Revenue Goal</h3>
+    <div class="metric" id="revenue-metric">$0 / $2,450</div>
+    <div class="metric-label">Target: 50 Lifetime Core sales</div>
+    <div class="progress-bar"><div class="progress-fill" id="revenue-bar" style="width:0%"></div></div>
+  </div>
+  <div class="card">
+    <h3>🐦 Twitter Growth</h3>
+    <div class="metric" id="twitter-metric">0 / 1,000</div>
+    <div class="metric-label">New followers target</div>
+    <div class="progress-bar"><div class="progress-fill" id="twitter-bar" style="width:0%"></div></div>
+  </div>
+  <div class="card">
+    <h3>📧 Email List</h3>
+    <div class="metric" id="email-metric">0 / 200</div>
+    <div class="metric-label">Newsletter subscribers</div>
+    <div class="progress-bar"><div class="progress-fill" id="email-bar" style="width:0%"></div></div>
+  </div>
+</div>
+
+<!-- TODAY'S MISSION -->
+<div class="today-task">
+  <h2 id="today-title">Day 1 — Twitter Launch Thread</h2>
+  <p id="today-desc" style="color: var(--muted); margin-bottom: 12px;">Copy this tweet and post it on Twitter. That's your only mission today. Takes 2 minutes.</p>
+  
+  <div class="tweet-box" id="today-tweet" onclick="copyTweet(this)">
+I was paying $50/month for ChatGPT Plus + Claude Pro + Midjourney.
+
+Built an AI aggregator that auto-picks the best model for every message.
+
+$49. One time. Forever.
+
+No subscriptions. No limits.
+
+🧵 Here's how it works 👇
+
+zerolimitai.com
+  </div>
+  
+  <div class="actions">
+    <a href="https://twitter.com/compose/tweet" target="_blank" class="btn">🐦 Open Twitter</a>
+    <button class="btn btn-secondary" onclick="nextDay()">✅ Done — Next Day →</button>
+    <button class="btn btn-secondary" onclick="copyTweet(document.getElementById('today-tweet'))">📋 Copy Tweet</button>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="showTab('calendar')">📅 Content Calendar</div>
+  <div class="tab" onclick="showTab('content')">📝 Content Bank</div>
+  <div class="tab" onclick="showTab('metrics')">📈 Metrics Tracker</div>
+  <div class="tab" onclick="showTab('resources')">🔗 Resources</div>
+</div>
+
+<!-- CALENDAR TAB -->
+<div class="tab-content active" id="calendar">
+  <div class="card" style="margin-bottom: 20px;">
+    <h3>🗓️ Week 1 — Organic Foundation</h3>
+    <div class="calendar" id="week1-calendar">
+      <!-- Filled by JS -->
+    </div>
+  </div>
+  <div class="card" style="margin-bottom: 20px;">
+    <h3>🗓️ Week 2 — Community + PH Prep</h3>
+    <div class="calendar" id="week2-calendar"></div>
+  </div>
+  <div class="card" style="margin-bottom: 20px;">
+    <h3>🗓️ Week 3 — Product Hunt Launch</h3>
+    <div class="calendar" id="week3-calendar"></div>
+  </div>
+  <div class="card">
+    <h3>🗓️ Week 4 — Double Down</h3>
+    <div class="calendar" id="week4-calendar"></div>
+  </div>
+</div>
+
+<!-- CONTENT BANK TAB -->
+<div class="tab-content" id="content">
+  <div class="two-col">
+    <div class="card">
+      <h3>🐦 Twitter — Awareness Tweets</h3>
+      <div class="tweet-box" onclick="copyTweet(this)">
+ChatGPT Plus: $20/mo
+Claude Pro: $20/mo  
+Midjourney: $10/mo
+Perplexity: $20/mo
+
+= $70/month = $840/year
+
+ZeroLimitAI: $49 once. Forever.
+
+Same models. Better routing. Zero config.
+      </div>
+      <div class="tweet-box" onclick="copyTweet(this)">
+ZeroOptimize™ ranks all major AI models every 24h.
+
+Your messages auto-route to the #1 performer.
+
+No more "which model should I use?"
+
+Just type. We handle the rest.
+
+→ zerolimitai.com
+      </div>
+      <div class="tweet-box" onclick="copyTweet(this)">
+Use ZeroLimitAI as your AI backend.
+
+OpenAI-compatible API.
+Perfect for OpenClaw, Cursor, Continue.
+
+baseURL: zerolimitai.com/api/v1
+$49 lifetime. No rate limit anxiety.
+      </div>
+    </div>
+    <div class="card">
+      <h3>🐦 Twitter — Conversion Tweets</h3>
+      <div class="tweet-box" onclick="copyTweet(this)">
+"I switched from ChatGPT Plus and haven't looked back."
+
+— Carlos M., Freelance Developer
+
+"The $49 lifetime deal is ridiculous value."
+
+— Sarah K., Content Strategist
+
+Join 200,000+ happy humans:
+zerolimitai.com
+      </div>
+      <div class="tweet-box" onclick="copyTweet(this)">
+🚨 Launch pricing ending soon
+
+$49 lifetime access to:
+• Unlimited chat
+• 40 images/day
+• Web search
+• AI agents
+• API access
+
+Next week: price goes up.
+
+Lock it in now 👇
+zerolimitai.com
+      </div>
+      <div class="tweet-box" onclick="copyTweet(this)">
+Stop paying $20/month for AI.
+
+I built a tool that:
+✓ Auto-picks the best model
+✓ Costs $49 once
+✓ Includes images + search + agents
+✓ Has an API for devs
+
+300+ people joined this week.
+
+zerolimitai.com
+      </div>
+    </div>
+  </div>
+  
+  <div class="card" style="margin-top: 20px;">
+    <h3>📧 Email Templates</h3>
+    <table>
+      <tr>
+        <th>Email</th>
+        <th>Subject Line</th>
+        <th>When to Send</th>
+      </tr>
+      <tr>
+        <td>Welcome</td>
+        <td>"Welcome to ZeroLimitAI — your trial is live! 🚀"</td>
+        <td>Immediately after signup</td>
+      </tr>
+      <tr>
+        <td>Feature Spotlight</td>
+        <td>"Have you tried image generation yet? 🎨"</td>
+        <td>Day 1 of trial</td>
+      </tr>
+      <tr>
+        <td>Social Proof</td>
+        <td>""I saved $200/year" — Carlos, developer"</td>
+        <td>Day 2 of trial</td>
+      </tr>
+      <tr>
+        <td>Last Call</td>
+        <td>"⏰ Your trial expires in 6 hours"</td>
+        <td>Day 3, 6h before expiry</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- METRICS TRACKER TAB -->
+<div class="tab-content" id="metrics">
+  <div class="two-col">
+    <div class="card">
+      <h3>📊 Weekly Tracking</h3>
+      <table>
+        <tr>
+          <th>Week</th>
+          <th>Signups</th>
+          <th>Conversions</th>
+          <th>Revenue</th>
+        </tr>
+        <tr>
+          <td>Week 1</td>
+          <td><input class="editable" placeholder="0" id="w1-signups"></td>
+          <td><input class="editable" placeholder="0" id="w1-conv"></td>
+          <td><input class="editable" placeholder="$0" id="w1-rev"></td>
+        </tr>
+        <tr>
+          <td>Week 2</td>
+          <td><input class="editable" placeholder="0" id="w2-signups"></td>
+          <td><input class="editable" placeholder="0" id="w2-conv"></td>
+          <td><input class="editable" placeholder="$0" id="w2-rev"></td>
+        </tr>
+        <tr>
+          <td>Week 3</td>
+          <td><input class="editable" placeholder="0" id="w3-signups"></td>
+          <td><input class="editable" placeholder="0" id="w3-conv"></td>
+          <td><input class="editable" placeholder="$0" id="w3-rev"></td>
+        </tr>
+        <tr>
+          <td>Week 4</td>
+          <td><input class="editable" placeholder="0" id="w4-signups"></td>
+          <td><input class="editable" placeholder="0" id="w4-conv"></td>
+          <td><input class="editable" placeholder="$0" id="w4-rev"></td>
+        </tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>📈 Channel Performance</h3>
+      <table>
+        <tr>
+          <th>Channel</th>
+          <th>Visitors</th>
+          <th>Signups</th>
+          <th>Conv Rate</th>
+        </tr>
+        <tr>
+          <td>Twitter/X</td>
+          <td><input class="editable" placeholder="0"></td>
+          <td><input class="editable" placeholder="0"></td>
+          <td><input class="editable" placeholder="0%"></td>
+        </tr>
+        <tr>
+          <td>Reddit</td>
+          <td><input class="editable" placeholder="0"></td>
+          <td><input class="editable" placeholder="0"></td>
+          <td><input class="editable" placeholder="0%"></td>
+        </tr>
+        <tr>
+          <td>Blog/SEO</td>
+          <td><input class="editable" placeholder="0"></td>
+          <td><input class="editable" placeholder="0"></td>
+          <td><input class="editable" placeholder="0%"></td>
+        </tr>
+        <tr>
+          <td>Product Hunt</td>
+          <td><input class="editable" placeholder="0"></td>
+          <td><input class="editable" placeholder="0"></td>
+          <td><input class="editable" placeholder="0%"></td>
+        </tr>
+        <tr>
+          <td>HackerNews</td>
+          <td><input class="editable" placeholder="0"></td>
+          <td><input class="editable" placeholder="0"></td>
+          <td><input class="editable" placeholder="0%"></td>
+        </tr>
+        <tr>
+          <td>Direct/Other</td>
+          <td><input class="editable" placeholder="0"></td>
+          <td><input class="editable" placeholder="0"></td>
+          <td><input class="editable" placeholder="0%"></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="card" style="margin-top: 20px;">
+    <h3>💡 How to Track</h3>
+    <p style="color: var(--muted); font-size: 0.9rem;">
+      1. Add UTM params to all links: <code>?utm_source=twitter&utm_medium=social&utm_campaign=ditch_monthly</code><br>
+      2. Check Google Analytics → Acquisition → All Traffic → Source/Medium<br>
+      3. Update this dashboard every Monday morning (5 min)<br>
+      4. Stripe dashboard for revenue tracking
+    </p>
+  </div>
+</div>
+
+<!-- RESOURCES TAB -->
+<div class="tab-content" id="resources">
+  <div class="grid">
+    <div class="card">
+      <h3>🔗 Quick Links</h3>
+      <p style="margin: 8px 0;"><a href="https://twitter.com/compose/tweet" target="_blank" style="color: var(--accent2);">→ Twitter Compose</a></p>
+      <p style="margin: 8px 0;"><a href="https://www.reddit.com/r/indiehackers/submit" target="_blank" style="color: var(--accent2);">→ r/indiehackers Submit</a></p>
+      <p style="margin: 8px 0;"><a href="https://www.producthunt.com/dashboard" target="_blank" style="color: var(--accent2);">→ Product Hunt Dashboard</a></p>
+      <p style="margin: 8px 0;"><a href="https://news.ycombinator.com/submit" target="_blank" style="color: var(--accent2);">→ HackerNews Submit</a></p>
+      <p style="margin: 8px 0;"><a href="https://analytics.google.com" target="_blank" style="color: var(--accent2);">→ Google Analytics</a></p>
+      <p style="margin: 8px 0;"><a href="https://dashboard.stripe.com" target="_blank" style="color: var(--accent2);">→ Stripe Dashboard</a></p>
+    </div>
+    <div class="card">
+      <h3>📋 Checklist Diaria</h3>
+      <p style="margin: 8px 0; color: var(--muted);"><span class="status todo"></span> Post tweet del día (2 min)</p>
+      <p style="margin: 8px 0; color: var(--muted);"><span class="status todo"></span> Responder a 3 tweets de cuentas grandes (5 min)</p>
+      <p style="margin: 8px 0; color: var(--muted);"><span class="status todo"></span> Check analytics / signups (2 min)</p>
+      <p style="margin: 8px 0; color: var(--muted);"><span class="status todo"></span> Reddit: 1 comentario genuino (5 min)</p>
+      <p style="margin: 8px 0; color: var(--muted);"><span class="status todo"></span> Update this dashboard (Lunes, 5 min)</p>
+    </div>
+    <div class="card">
+      <h3>🎯 UTMs por Canal</h3>
+      <p style="font-family: monospace; font-size: 0.75rem; color: var(--muted); margin: 6px 0;">?utm_source=twitter&utm_medium=social&utm_campaign=ditch_monthly</p>
+      <p style="font-family: monospace; font-size: 0.75rem; color: var(--muted); margin: 6px 0;">?utm_source=reddit&utm_medium=social&utm_campaign=ditch_monthly</p>
+      <p style="font-family: monospace; font-size: 0.75rem; color: var(--muted); margin: 6px 0;">?utm_source=producthunt&utm_medium=referral&utm_campaign=ditch_monthly</p>
+      <p style="font-family: monospace; font-size: 0.75rem; color: var(--muted); margin: 6px 0;">?utm_source=hackernews&utm_medium=referral&utm_campaign=ditch_monthly</p>
+      <p style="font-family: monospace; font-size: 0.75rem; color: var(--muted); margin: 6px 0;">?utm_source=blog&utm_medium=organic&utm_campaign=ditch_monthly</p>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// Calendar data
+const calendar = {
+  w1: [
+    { day: 'Mon', date: 'Day 1', task: 'Twitter Launch Thread', channel: 'Twitter', done: false },
+    { day: 'Tue', date: 'Day 2', task: 'Blog: Cost Breakdown', channel: 'Blog', done: false },
+    { day: 'Wed', date: 'Day 3', task: 'Reddit: IndieHackers Showoff', channel: 'Reddit', done: false },
+    { day: 'Thu', date: 'Day 4', task: 'Tweet: Pricing Comparison', channel: 'Twitter', done: false },
+    { day: 'Fri', date: 'Day 5', task: 'Blog: ZeroOptimize Tutorial', channel: 'Blog', done: false },
+    { day: 'Sat', date: 'Day 6', task: 'Reddit: ChatGPT Alternative', channel: 'Reddit', done: false },
+    { day: 'Sun', date: 'Day 7', task: 'Newsletter #1', channel: 'Email', done: false },
+  ],
+  w2: [
+    { day: 'Mon', date: 'Day 8', task: 'Tweet: ZeroClaw Feature', channel: 'Twitter', done: false },
+    { day: 'Tue', date: 'Day 9', task: 'Blog: API Tutorial', channel: 'Blog', done: false },
+    { day: 'Wed', date: 'Day 10', task: 'Reddit AMA WebDev', channel: 'Reddit', done: false },
+    { day: 'Thu', date: 'Day 11', task: 'PH Coming Soon Page', channel: 'Product Hunt', done: false },
+    { day: 'Fri', date: 'Day 12', task: 'Tweet: Meme / Viral', channel: 'Twitter', done: false },
+    { day: 'Sat', date: 'Day 13', task: 'Reddit: LocalLLaMA', channel: 'Reddit', done: false },
+    { day: 'Sun', date: 'Day 14', task: 'Newsletter #2', channel: 'Email', done: false },
+  ],
+  w3: [
+    { day: 'Mon', date: 'Day 15', task: '🚀 PRODUCT HUNT LAUNCH', channel: 'Product Hunt', done: false },
+    { day: 'Tue', date: 'Day 16', task: 'Tweet: PH Thank You', channel: 'Twitter', done: false },
+    { day: 'Wed', date: 'Day 17', task: 'HackerNews Show HN', channel: 'HN', done: false },
+    { day: 'Thu', date: 'Day 18', task: 'Paid Twitter Boost', channel: 'Twitter Ads', done: false },
+    { day: 'Fri', date: 'Day 19', task: 'Blog: PH Lessons', channel: 'Blog', done: false },
+    { day: 'Sat', date: 'Day 20', task: 'Reddit: PH Results', channel: 'Reddit', done: false },
+    { day: 'Sun', date: 'Day 21', task: 'Newsletter #3 + Offer', channel: 'Email', done: false },
+  ],
+  w4: [
+    { day: 'Mon', date: 'Day 22', task: 'Tweet: 30 Days Numbers', channel: 'Twitter', done: false },
+    { day: 'Tue', date: 'Day 23', task: 'Blog: 10 Prompts for Devs', channel: 'Blog', done: false },
+    { day: 'Wed', date: 'Day 24', task: 'Reddit: Programming', channel: 'Reddit', done: false },
+    { day: 'Thu', date: 'Day 25', task: 'Google Search Ads', channel: 'Google Ads', done: false },
+    { day: 'Fri', date: 'Day 26', task: 'Tweet: User Testimonial', channel: 'Twitter', done: false },
+    { day: 'Sat', date: 'Day 27', task: 'Blog: LATAM Pricing', channel: 'Blog', done: false },
+    { day: 'Sun', date: 'Day 28', task: 'Newsletter #4 Recap', channel: 'Email', done: false },
+  ]
+};
+
+const tweets = [
+  {
+    title: "Day 1 — Twitter Launch Thread",
+    desc: "Post this as the first tweet of a thread. Then reply with 4-5 tweets explaining the product.",
+    text: "I was paying $50/month for ChatGPT Plus + Claude Pro + Midjourney.\n\nBuilt an AI aggregator that auto-picks the best model for every message.\n\n$49. One time. Forever.\n\nNo subscriptions. No limits.\n\n🧵 Here's how it works 👇\n\nzerolimitai.com"
+  },
+  {
+    title: "Day 2 — Pricing Comparison Tweet",
+    desc: "Standalone tweet. Visual works great here (screenshot of the comparison).",
+    text: "ChatGPT Plus: $20/mo\nClaude Pro: $20/mo  \nMidjourney: $10/mo\nPerplexity: $20/mo\n\n= $70/month = $840/year\n\nZeroLimitAI: $49 once. Forever.\n\nSame models. Better routing. Zero config.\n\nzerolimitai.com"
+  },
+  {
+    title: "Day 3 — Feature Focus: ZeroOptimize",
+    desc: "Educational tweet. Build trust by explaining the tech.",
+    text: "ZeroOptimize™ ranks all major AI models every 24h.\n\nYour messages auto-route to the #1 performer.\n\nNo more \"which model should I use?\"\n\nNo more manual switching.\n\nJust type. We handle the rest.\n\n→ zerolimitai.com"
+  },
+  {
+    title: "Day 4 — Dev/API Focus",
+    desc: "Target developers. This tweet gets saved and shared in dev circles.",
+    text: "Use ZeroLimitAI as your AI backend.\n\nOpenAI-compatible API.\nPerfect for OpenClaw, Cursor, Continue.\n\nbaseURL: zerolimitai.com/api/v1\n$49 lifetime. No rate limit anxiety."
+  },
+  {
+    title: "Day 5 — Social Proof",
+    desc: "Let users sell for you. This builds trust.",
+    text: "\"I switched from ChatGPT Plus and haven't looked back.\"\n\n— Carlos M., Freelance Developer\n\n\"The $49 lifetime deal is ridiculous value.\"\n\n— Sarah K., Content Strategist\n\nJoin 200,000+ happy humans:\nzerolimitai.com"
+  },
+  {
+    title: "Day 6 — Urgency / Scarcity",
+    desc: "Create FOMO. Only use this if you're actually planning a price change.",
+    text: "🚨 Launch pricing ending soon\n\n$49 lifetime access to:\n• Unlimited chat\n• 40 images/day\n• Web search\n• AI agents\n• API access\n\nNext week: price goes up.\n\nLock it in now 👇\nzerolimitai.com"
+  },
+  {
+    title: "Day 7 — Benefits List",
+    desc: "Clean, scannable. Good for engagement.",
+    text: "Stop paying $20/month for AI.\n\nI built a tool that:\n✓ Auto-picks the best model\n✓ Costs $49 once\n✓ Includes images + search + agents\n✓ Has an API for devs\n\n300+ people joined this week.\n\nzerolimitai.com"
+  }
+];
+
+let currentDay = 0;
+
+function renderCalendar() {
+  ['w1','w2','w3','w4'].forEach((week, idx) => {
+    const container = document.getElementById(week + '-calendar');
+    container.innerHTML = calendar[week].map((day, i) => `
+      <div class="day-card ${i === currentDay % 7 && idx === Math.floor(currentDay / 7) ? 'active' : ''}">
+        <div class="date">${day.day} — ${day.date}</div>
+        <div class="task">${day.task}</div>
+        <div class="channel">${day.channel}</div>
+      </div>
+    `).join('');
+  });
+}
+
+function updateToday() {
+  const tweet = tweets[currentDay % tweets.length];
+  document.getElementById('today-title').textContent = tweet.title;
+  document.getElementById('today-desc').textContent = tweet.desc;
+  document.getElementById('today-tweet').textContent = tweet.text;
+  renderCalendar();
+}
+
+function nextDay() {
+  currentDay++;
+  if (currentDay >= 28) currentDay = 0;
+  updateToday();
+}
+
+function copyTweet(el) {
+  const text = el.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    el.classList.add('copied');
+    setTimeout(() => el.classList.remove('copied'), 2000);
+  });
+}
+
+function showTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById(tab).classList.add('active');
+}
+
+// Load saved metrics
+function loadMetrics() {
+  const saved = localStorage.getItem('zla_metrics');
+  if (saved) {
+    const data = JSON.parse(saved);
+    document.getElementById('signup-metric').textContent = `${data.signups} / 500`;
+    document.getElementById('signup-bar').style.width = `${Math.min((data.signups/500)*100, 100)}%`;
+    document.getElementById('revenue-metric').textContent = `$${data.revenue} / $2,450`;
+    document.getElementById('revenue-bar').style.width = `${Math.min((data.revenue/2450)*100, 100)}%`;
+    document.getElementById('twitter-metric').textContent = `${data.twitter} / 1,000`;
+    document.getElementById('twitter-bar').style.width = `${Math.min((data.twitter/1000)*100, 100)}%`;
+    document.getElementById('email-metric').textContent = `${data.email} / 200`;
+    document.getElementById('email-bar').style.width = `${Math.min((data.email/200)*100, 100)}%`;
+  }
+}
+
+// Save metrics on input
+function saveMetrics() {
+  const data = {
+    signups: parseInt(document.getElementById('signup-metric').textContent) || 0,
+    revenue: parseInt(document.getElementById('revenue-metric').textContent.replace('$','')) || 0,
+    twitter: parseInt(document.getElementById('twitter-metric').textContent) || 0,
+    email: parseInt(document.getElementById('email-metric').textContent) || 0
+  };
+  localStorage.setItem('zla_metrics', JSON.stringify(data));
+}
+
+// Initialize
+renderCalendar();
+updateToday();
+loadMetrics();
+</script>
+
+</body>
+</html>
